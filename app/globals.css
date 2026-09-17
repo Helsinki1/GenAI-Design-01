@@ -1,0 +1,62 @@
+:root {
+  color-scheme: light;
+  --background: #f5f7fb;
+  --foreground: #111827;
+  --muted: #6b7280;
+  --surface: #ffffff;
+  --border: #dbe2ea;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(circle at top, #ffffff, var(--background));
+  color: var(--foreground);
+}
+
+body {
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.card {
+  width: min(100%, 560px);
+  padding: 40px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.08);
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1;
+}
+
+.copy {
+  margin: 16px 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
