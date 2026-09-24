@@ -1,9 +1,19 @@
 # GenAI Design
 
-Minimal Next.js app scaffolded with the App Router.
+A Next.js caption gallery backed by Supabase.
 
 ## Run locally
 
 1. Install Node.js.
 2. Install dependencies with `npm install`.
 3. Start the dev server with `npm run dev`.
+
+## Supabase setup
+
+1. Copy `.env.example` to `.env.local`.
+2. Set `NEXT_PUBLIC_SUPABASE_URL`.
+3. Set `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+4. Optionally change `NEXT_PUBLIC_SUPABASE_TABLE` if your table is not named `captions`.
+
+Never commit `.env.local`. Add the same variables to the Vercel project before
+deploying the `main` branch.
