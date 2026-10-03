@@ -259,3 +259,68 @@ h1 {
 .auth-error {
   color: #b91c1c;
 }
+
+a.secondary-button,
+.file-button {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.profile-form,
+.profile-view {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eef2f7;
+}
+
+.avatar-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field .search-input {
+  width: 100%;
+  font-weight: 400;
+  resize: vertical;
+}
+
+.profile-form .auth-button {
+  margin-top: 4px;
+}
+
+.profile-form .notice {
+  margin: 0;
+}
