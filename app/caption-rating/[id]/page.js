@@ -57,7 +57,7 @@ export default async function CaptionRatingImagePage({ params }) {
   return (
     <main className="page">
       <section className="gallery-shell rating-shell">
-        <Link className="back-link" href="/caption-rating">
+        <Link className="back-link" href="/">
           ← All images
         </Link>
 

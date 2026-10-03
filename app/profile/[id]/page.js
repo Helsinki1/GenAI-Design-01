@@ -40,7 +40,7 @@ export default async function ProfilePage({ params }) {
     <main className="page">
       <section className="card profile-card">
         <Link className="back-link" href="/">
-          ← Back to captions
+          ← Back to images
         </Link>
         <p className="eyebrow">Profile</p>
         <h1>{fullName || (isOwner ? "Your profile" : "Profile")}</h1>

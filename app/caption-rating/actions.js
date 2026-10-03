@@ -112,7 +112,7 @@ export async function generateCaption(imageId) {
   }
 
   revalidatePath(`/caption-rating/${image.id}`);
-  revalidatePath("/caption-rating");
+  revalidatePath("/");
   return { error: null };
 }
 

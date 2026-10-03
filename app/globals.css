@@ -90,13 +90,6 @@ h1 {
   font-size: 0.95rem;
 }
 
-.search-form {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 28px;
-}
-
 .search-input {
   width: min(100%, 440px);
   padding: 11px 13px;
@@ -110,44 +103,6 @@ h1 {
 .search-input:focus {
   border-color: #64748b;
   outline: 3px solid rgba(100, 116, 139, 0.14);
-}
-
-.search-button,
-.page-link,
-.clear-link {
-  color: var(--foreground);
-  font: inherit;
-  font-weight: 600;
-}
-
-.search-button {
-  padding: 11px 16px;
-  border: 0;
-  border-radius: 10px;
-  color: #ffffff;
-  background: #111827;
-  cursor: pointer;
-}
-
-.clear-link,
-.page-link {
-  font-size: 0.9rem;
-  text-decoration: none;
-}
-
-.pagination {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 18px;
-  margin-top: 30px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.pagination > :last-child {
-  justify-self: end;
 }
 
 .caption-grid {
