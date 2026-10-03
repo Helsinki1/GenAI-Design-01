@@ -86,6 +86,9 @@ export default async function Home({ searchParams }) {
           </div>
           <div className="account">
             <span className="account-email">{user.email}</span>
+            <Link className="secondary-button" href="/caption-rating">
+              Rate captions
+            </Link>
             <Link className="secondary-button" href={`/profile/${user.id}`}>
               Profile
             </Link>
