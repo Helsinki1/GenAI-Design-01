@@ -409,3 +409,51 @@ a.secondary-button,
     align-items: stretch;
   }
 }
+
+.upload {
+  margin-top: 24px;
+}
+
+.upload .upload-button {
+  display: inline-block;
+  width: auto;
+  margin-top: 0;
+}
+
+.upload-button.is-pending {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.upload-button:focus-within {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.upload .notice {
+  margin-top: 12px;
+}
+
+.image-of-the-day {
+  position: relative;
+  border: 4px solid #f5b301;
+  box-shadow: 0 0 0 4px rgba(245, 179, 1, 0.22), 0 14px 36px rgba(245, 179, 1, 0.3);
+}
+
+.image-of-the-day:hover {
+  box-shadow: 0 0 0 4px rgba(245, 179, 1, 0.3), 0 18px 44px rgba(245, 179, 1, 0.38);
+}
+
+.image-of-the-day-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: #422006;
+  background: linear-gradient(135deg, #fde047, #f5b301);
+  box-shadow: 0 4px 12px rgba(66, 32, 6, 0.25);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
