@@ -363,6 +363,15 @@ a.secondary-button,
   font-weight: 600;
 }
 
+.vote-area {
+  flex-shrink: 0;
+  max-width: 240px;
+}
+
+.vote-area .notice {
+  margin-top: 8px;
+}
+
 .vote-group {
   display: flex;
   flex-shrink: 0;

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "../../../lib/supabase/server";
-import { voteOnCaption } from "../actions";
 import GenerateButton from "./generate-button";
+import VoteButtons from "./vote-buttons";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -84,28 +84,13 @@ export default async function CaptionRatingImagePage({ params }) {
                           <span className="ai-badge">AI · {caption.model}</span>
                         ) : null}
                       </div>
-                      <div className="vote-group">
-                        <form action={voteOnCaption.bind(null, image.id, caption.id, 1)}>
-                          <button
-                            className={`vote-button${myVote === 1 ? " vote-active-up" : ""}`}
-                            type="submit"
-                            aria-pressed={myVote === 1}
-                            aria-label="Upvote"
-                          >
-                            ▲ {upvotes}
-                          </button>
-                        </form>
-                        <form action={voteOnCaption.bind(null, image.id, caption.id, -1)}>
-                          <button
-                            className={`vote-button${myVote === -1 ? " vote-active-down" : ""}`}
-                            type="submit"
-                            aria-pressed={myVote === -1}
-                            aria-label="Downvote"
-                          >
-                            ▼ {downvotes}
-                          </button>
-                        </form>
-                      </div>
+                      <VoteButtons
+                        imageId={image.id}
+                        captionId={caption.id}
+                        upvotes={upvotes}
+                        downvotes={downvotes}
+                        myVote={myVote}
+                      />
                     </li>
                   );
                 })}

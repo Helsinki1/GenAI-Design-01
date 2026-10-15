@@ -199,38 +199,47 @@ export async function addUploadedImage(imageUrl) {
 // Clicking the vote you already cast removes it; otherwise it is created or switched.
 export async function voteOnCaption(imageId, captionId, voteValue) {
   if (voteValue !== 1 && voteValue !== -1) {
-    return;
+    return { error: "Invalid vote." };
   }
 
   const { supabase, user } = await getUserClient();
   if (!user) {
-    return;
+    return { error: "You need to sign in to vote." };
   }
 
-  const { data: existing } = await supabase
+  const { data: existing, error: lookupError } = await supabase
     .from("caption_votes")
     .select("id, vote_value")
     .eq("caption_id", captionId)
     .eq("user_id", user.id)
     .maybeSingle();
 
+  if (lookupError) {
+    return { error: lookupError.message };
+  }
+
+  let writeError;
   if (!existing) {
-    await supabase.from("caption_votes").insert({
+    ({ error: writeError } = await supabase.from("caption_votes").insert({
       caption_id: captionId,
       user_id: user.id,
       vote_value: voteValue,
-    });
+    }));
   } else if (existing.vote_value === voteValue) {
-    await supabase.from("caption_votes").delete().eq("id", existing.id);
+    ({ error: writeError } = await supabase
+      .from("caption_votes")
+      .delete()
+      .eq("id", existing.id));
   } else {
-    await supabase
+    ({ error: writeError } = await supabase
       .from("caption_votes")
       .update({
         vote_value: voteValue,
         modified_datetime_utc: new Date().toISOString(),
       })
-      .eq("id", existing.id);
+      .eq("id", existing.id));
   }
 
   revalidatePath(`/caption-rating/${imageId}`);
+  return { error: writeError?.message ?? null };
 }
