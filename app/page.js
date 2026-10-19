@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { signOut } from "./actions";
 import { createClient } from "../lib/supabase/server";
+import SiteHeader from "./site-header";
 import UploadImage from "./upload-image";
 
 // Sessions from before the sign-in pick existed get a stable fallback from the user id.
@@ -37,7 +37,7 @@ export default async function Home() {
       .order("id", { ascending: true }),
     supabase
       .from("profiles")
-      .select("image_of_the_day_id, is_admin")
+      .select("image_of_the_day_id")
       .eq("id", user.id)
       .maybeSingle(),
   ]);
@@ -51,6 +51,7 @@ export default async function Home() {
   return (
     <main className="page">
       <section className="gallery-shell">
+        <SiteHeader current="images" />
         <div className="page-header">
           <div className="stack">
             <p className="eyebrow">Caption Rating</p>
@@ -58,22 +59,6 @@ export default async function Home() {
             <p className="copy">
               Generate AI captions for an image and vote on the best ones.
             </p>
-          </div>
-          <div className="account">
-            <span className="account-email">{user.email}</span>
-            {profile?.is_admin ? (
-              <Link className="secondary-button" href="/admin">
-                Admin
-              </Link>
-            ) : null}
-            <Link className="secondary-button" href={`/profile/${user.id}`}>
-              Profile
-            </Link>
-            <form action={signOut}>
-              <button className="secondary-button" type="submit">
-                Sign out
-              </button>
-            </form>
           </div>
         </div>
 

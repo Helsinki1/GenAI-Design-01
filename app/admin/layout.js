@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { requireAdmin } from "../../lib/admin";
-import { signOut } from "../actions";
+import SiteHeader from "../site-header";
 import AdminNav from "./admin-nav";
 
 export const metadata = {
@@ -8,27 +7,15 @@ export const metadata = {
 };
 
 export default async function AdminLayout({ children }) {
-  const { user } = await requireAdmin();
+  await requireAdmin();
 
   return (
     <main className="page">
       <section className="gallery-shell admin-shell">
-        <div className="page-header">
-          <div className="stack">
-            <p className="eyebrow">Caption Lab · Admin</p>
-            <AdminNav />
-          </div>
-          <div className="account">
-            <span className="account-email">{user.email}</span>
-            <Link className="secondary-button" href="/">
-              Back to app
-            </Link>
-            <form action={signOut}>
-              <button className="secondary-button" type="submit">
-                Sign out
-              </button>
-            </form>
-          </div>
+        <SiteHeader current="admin" />
+        <div className="stack">
+          <p className="eyebrow">Admin</p>
+          <AdminNav />
         </div>
         {children}
       </section>

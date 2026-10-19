@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "../../../lib/supabase/server";
+import SiteHeader from "../../site-header";
 import ProfileForm from "./profile-form";
 
 const UUID_PATTERN =
@@ -38,28 +39,31 @@ export default async function ProfilePage({ params }) {
 
   return (
     <main className="page">
-      <section className="card profile-card">
-        <Link className="back-link" href="/">
-          ← Back to images
-        </Link>
-        <p className="eyebrow">Profile</p>
-        <h1>{fullName || (isOwner ? "Your profile" : "Profile")}</h1>
+      <div className="gallery-shell">
+        <SiteHeader current={isOwner ? "profile" : null} />
+        <section className="card profile-card">
+          <Link className="back-link" href="/">
+            ← Back to images
+          </Link>
+          <p className="eyebrow">Profile</p>
+          <h1>{fullName || (isOwner ? "Your profile" : "Profile")}</h1>
 
-        {error ? (
-          <p className="notice auth-error">Could not load profile: {error.message}</p>
-        ) : isOwner ? (
-          <ProfileForm profile={profile} />
-        ) : (
-          <div className="profile-view">
-            {profile.avatar_url ? (
-              <img className="avatar" src={profile.avatar_url} alt="" />
-            ) : (
-              <div className="avatar avatar-placeholder">No photo</div>
-            )}
-            <p className="copy">{profile.bio || "No bio yet."}</p>
-          </div>
-        )}
-      </section>
+          {error ? (
+            <p className="notice auth-error">Could not load profile: {error.message}</p>
+          ) : isOwner ? (
+            <ProfileForm profile={profile} />
+          ) : (
+            <div className="profile-view">
+              {profile.avatar_url ? (
+                <img className="avatar" src={profile.avatar_url} alt="" />
+              ) : (
+                <div className="avatar avatar-placeholder">No photo</div>
+              )}
+              <p className="copy">{profile.bio || "No bio yet."}</p>
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

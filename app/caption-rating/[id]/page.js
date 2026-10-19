@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "../../../lib/supabase/server";
+import SiteHeader from "../../site-header";
 import GenerateButton from "./generate-button";
 import VoteButtons from "./vote-buttons";
 
@@ -57,6 +58,7 @@ export default async function CaptionRatingImagePage({ params }) {
   return (
     <main className="page">
       <section className="gallery-shell rating-shell">
+        <SiteHeader current="images" />
         <Link className="back-link" href="/">
           ← All images
         </Link>
