@@ -37,7 +37,7 @@ export default async function Home() {
       .order("id", { ascending: true }),
     supabase
       .from("profiles")
-      .select("image_of_the_day_id")
+      .select("image_of_the_day_id, is_admin")
       .eq("id", user.id)
       .maybeSingle(),
   ]);
@@ -61,6 +61,11 @@ export default async function Home() {
           </div>
           <div className="account">
             <span className="account-email">{user.email}</span>
+            {profile?.is_admin ? (
+              <Link className="secondary-button" href="/admin">
+                Admin
+              </Link>
+            ) : null}
             <Link className="secondary-button" href={`/profile/${user.id}`}>
               Profile
             </Link>
