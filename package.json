@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:votes": "node --test tests/caption-votes.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

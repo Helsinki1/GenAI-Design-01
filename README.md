@@ -17,6 +17,22 @@ A Next.js caption gallery backed by Supabase.
 Never commit `.env.local`. Add the same variables to the Vercel project before
 deploying the `main` branch.
 
+Apply the SQL files in `supabase/migrations/` in numeric order in the Supabase
+SQL editor. Pushing application code does not apply database migrations.
+In particular, `0008_caption_votes_policies.sql` is required for voting: with
+RLS enabled but no policies, every vote insert is rejected and vote counts read
+as zero. It is safe to rerun this migration on an existing database.
+
+### Voting regression test
+
+Run `npm run test:votes` with PostgreSQL server tools installed (`pg_config`,
+`initdb`, `pg_ctl`, and `psql`; use `PG_BINDIR` if they are not discoverable).
+Run as a non-root user. The test starts an isolated temporary database with no
+TCP listener and never reads application credentials. It reproduces the missing
+policies failure, applies migration 0008, and verifies upvotes, downvotes,
+switching, removal, shared counts, and protection against other-user/anonymous
+writes. The temporary cluster is removed afterward.
+
 ## Admin area
 
 `/admin` (stats dashboard, users, captions, votes) is only for signed-in users
