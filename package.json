@@ -9,7 +9,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:votes": "node --test tests/caption-votes.test.mjs"
+    "test:votes": "node --test tests/caption-votes.test.mjs",
+    "test:admin": "node --test tests/admin.test.mjs",
+    "preview:admin": "node tests/admin-fixture.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

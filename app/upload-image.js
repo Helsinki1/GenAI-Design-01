@@ -43,7 +43,7 @@ export default function UploadImage({ userId }) {
       if (result.error) {
         setStatus({ error: result.error });
       } else {
-        setStatus({ success: "Uploaded! Your image has 3 fresh AI captions." });
+        setStatus({ success: "Uploaded! Your image has fresh AI captions." });
         router.refresh();
       }
     });
