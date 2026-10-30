@@ -12,6 +12,7 @@ const display = (value) => value == null ? "—" : typeof value === "object" ? J
 export default function ResourceManager({ slug, config, rows, options, userId }) {
   const router = useRouter();
   const dialog = useRef(null);
+  const fileInput = useRef(null);
   const [mode, setMode] = useState(null);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({});
@@ -21,6 +22,7 @@ export default function ResourceManager({ slug, config, rows, options, userId })
   const [notice, setNotice] = useState("");
 
   function open(nextMode, row = null) {
+    if (fileInput.current) fileInput.current.value = "";
     setMode(nextMode); setSelected(row); setError(""); setFile(null);
     setForm(Object.fromEntries(config.fields.map((field) => [field.key, row?.[field.key] ?? field.default ?? (field.type === "checkbox" ? false : "")])));
     dialog.current.showModal();
@@ -89,7 +91,7 @@ export default function ResourceManager({ slug, config, rows, options, userId })
         <fieldset disabled={pending}>
           {mode === "delete" ? <p>This removes record <code>{selected?.id}</code>. Related records may prevent deletion.</p> : <>
             {slug === "images" && mode === "create" && <label>Upload image
-              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setFile(event.target.files?.[0] || null)} />
+              <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setFile(event.target.files?.[0] || null)} />
               <small>Or enter a hosted image URL below. Maximum upload size: 10 MB.</small>
             </label>}
             {config.fields.map((field) => <label key={field.key}>

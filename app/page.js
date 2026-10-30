@@ -29,12 +29,6 @@ export default async function Home() {
     redirect("/login");
   }
 
-  if (process.env.ADMIN_APP === "1") {
-    const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
-    if (profile?.is_admin) redirect("/admin");
-    return <main className="page"><section className="card"><SiteHeader /><h1>Admin access required</h1><p className="copy">This account does not have access to the admin area.</p></section></main>;
-  }
-
   const [{ data: allImages, error }, { data: profile }] = await Promise.all([
     supabase
       .from("images")

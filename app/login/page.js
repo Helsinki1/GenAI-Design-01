@@ -20,7 +20,7 @@ export default async function LoginPage({ searchParams }) {
       <section className="card auth-card">
         <p className="eyebrow">Caption Lab</p>
         <h1>Sign in</h1>
-        <p className="copy">{process.env.ADMIN_APP === "1" ? "Sign in with your admin Google account." : "Sign in with Google to browse the caption gallery."}</p>
+        <p className="copy">Sign in with Google to browse the caption gallery.</p>
         {authError ? <p className="notice auth-error">{authError}</p> : null}
         <LoginForm />
       </section>

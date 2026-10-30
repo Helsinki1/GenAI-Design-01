@@ -110,20 +110,16 @@ paid model API. Auth and storage HTTP endpoints are local fixtures.
 `http://localhost:3010`. Open the printed `/sign-in` URL for the fixture admin;
 append `?role=member` to test denial. The fixture is a separate loopback server,
 not an authentication bypass in the deployed app. Stop with Ctrl+C to remove
-the temporary database and PostgREST container. Run `ADMIN_APP=1 npm run
-preview:admin` to test the separate admin application's entry point.
+the temporary database and PostgREST container.
 
-### Two Vercel applications
+### Existing Vercel application
 
-Deploy this repository to the existing `gen-ai-design-01` caption project and a
-separate admin project. Both use the same Supabase URL/public anon key. The
-caption project keeps its server-only OpenAI configuration; the admin area's
-read/CRUD operations do not need an OpenAI key. Set `ADMIN_APP=1` only in the admin project:
-its root opens the dashboard for admins and an access-denied message for other
-accounts. Add each deployed `/auth/callback` URL to Supabase's redirect allowlist.
+The existing `gen-ai-design-01` Vercel project serves both the caption app at `/`
+and the admin area at `/admin`. Pushing `main` updates that project; no additional
+Vercel project is needed. Use the commit-specific deployment URL with the
+appropriate path for review. Supabase's redirect allowlist must contain its
+HTTPS `/auth/callback` URL.
 
-In each project's Settings → Deployment Protection, Vercel Authentication must
-be off for assignment review. Application login and admin authorization remain
-required. Submit the two immutable deployment URLs associated with the final
-commit, rather than the moving production aliases. Do not publish this change
-until migration 0010 has been applied to the target database.
+Vercel deployment protection is off for assignment review. Application login
+and admin authorization remain required. Apply migration 0010 before deploying
+this release to a new database.

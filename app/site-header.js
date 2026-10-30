@@ -14,7 +14,7 @@ export default async function SiteHeader({ current }) {
     : { data: null };
 
   const links = [
-    { key: "images", href: process.env.ADMIN_APP === "1" ? "/admin/images" : "/", label: "Images" },
+    { key: "images", href: "/", label: "Images" },
     { key: "reels", href: "/reels", label: "Reels" },
     ...(user ? [{ key: "profile", href: `/profile/${user.id}`, label: "Profile" }] : []),
     ...(profile?.is_admin ? [{ key: "admin", href: "/admin", label: "Admin" }] : []),
