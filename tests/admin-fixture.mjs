@@ -7,6 +7,8 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createClient } from "@supabase/supabase-js";
+import { generateForImage } from "../lib/generation.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 export const adminId = "10000000-0000-4000-8000-000000000001";
@@ -29,7 +31,7 @@ async function port() {
   return port;
 }
 
-export async function startFixture() {
+export async function startFixture({ appDirectory = root, cookieName = "sb-localhost-auth-token" } = {}) {
   const bin = process.env.PG_BINDIR || execFileSync("pg_config", ["--bindir"], { encoding: "utf8" }).trim();
   const directory = mkdtempSync(join(tmpdir(), "week7-admin-"));
   const data = join(directory, "data");
@@ -93,11 +95,25 @@ export async function startFixture() {
         if (url.pathname === "/sign-in") {
           const id = url.searchParams.get("role") === "member" ? memberId : adminId;
           const session = { access_token: token(id), refresh_token: "local-fixture", expires_at: Math.floor(Date.now()/1000)+86400, expires_in: 86400, token_type: "bearer", user: users[id] };
-          res.setHeader("Set-Cookie", `sb-localhost-auth-token=base64-${Buffer.from(JSON.stringify(session)).toString("base64url")}; Path=/; SameSite=Lax`);
+          res.setHeader("Set-Cookie", `${cookieName}=base64-${Buffer.from(JSON.stringify(session)).toString("base64url")}; Path=/; SameSite=Lax`);
           res.writeHead(302, { Location: "http://localhost:3010/admin" }); res.end(); return;
         }
         if (url.pathname === "/auth/v1/user") { json(users[uid] || { message: "Invalid token" }, users[uid] ? 200 : 401); return; }
         if (url.pathname === "/auth/v1/logout") { json({}); return; }
+        if (url.pathname === "/api/admin/generate" && req.method === "POST") {
+          if (uid !== adminId) { json({ error: "Admins only." }, 403); return; }
+          const client = createClient(`http://localhost:${gateway.address().port}`, token(), {
+            global: { headers: { Authorization: req.headers.authorization } },
+            auth: { persistSession: false, autoRefreshToken: false },
+          });
+          const { data: image } = await client.from("images").select("id,url").eq("id", JSON.parse(body).imageId).single();
+          if (!image) { json({ error: "Image not found." }, 404); return; }
+          const result = await generateForImage(client, users[uid], image, true, {
+            toDataUrl: async () => "data:image/png;base64,fixture",
+            requestCaptions: async () => ({ raw: '{"captions":["Local standalone AI caption"]}', captions: ["Local standalone AI caption"] }),
+          });
+          json(result, result.error ? 502 : 200); return;
+        }
         if (url.pathname.startsWith("/rest/v1/")) {
           const headers = { ...req.headers }; delete headers.host; delete headers["content-length"];
           const response = await fetch(`http://127.0.0.1:${restPort}/${req.url.slice(9)}`, { method: req.method, headers, ...(body.length ? { body } : {}) });
@@ -131,7 +147,7 @@ export async function startFixture() {
     return { url, key: token(), adminToken: token(adminId), memberToken: token(memberId), sql, close,
       startNext() {
         next = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--hostname", "127.0.0.1", "--port", "3010"], {
-          cwd: root, stdio: "inherit", env: { ...process.env, NEXT_PUBLIC_SUPABASE_URL: url, NEXT_PUBLIC_SUPABASE_ANON_KEY: token(), OPENAI_API_KEY: "" },
+          cwd: appDirectory, stdio: "inherit", env: { ...process.env, NEXT_PUBLIC_SUPABASE_URL: url, NEXT_PUBLIC_SUPABASE_ANON_KEY: token(), NEXT_PUBLIC_CAPTION_APP_URL: url, OPENAI_API_KEY: "" },
         });
         return next;
       },

@@ -112,13 +112,21 @@ append `?role=member` to test denial. The fixture is a separate loopback server,
 not an authentication bypass in the deployed app. Stop with Ctrl+C to remove
 the temporary database and PostgREST container.
 
-### Existing Vercel application
+### Separate Vercel applications
 
-The existing `gen-ai-design-01` Vercel project serves both the caption app at `/`
-and the admin area at `/admin`. Pushing `main` updates that project; no additional
-Vercel project is needed. Use the commit-specific deployment URL with the
-appropriate path for review. Supabase's redirect allowlist must contain its
-HTTPS `/auth/callback` URL.
+The existing `gen-ai-design-01` Vercel project uses the repository root. The
+dedicated `gen-ai-design-01-admin` project uses **`admin-app` as its Root
+Directory**. Both deploy `main`, have independent packages/builds, and share the
+GenAI-Design-1 Supabase database. The original `/admin` routes remain available.
+See [admin-app/README.md](admin-app/README.md) for setup and verification. Use each
+project's commit-specific deployment URL for review; Supabase's redirect
+allowlist must contain both HTTPS `/auth/callback` URLs.
+
+The caption app's `POST /api/admin/generate` lets the standalone admin generate
+captions with the existing provider key. It validates a Supabase bearer JWT and
+`profiles.is_admin` before loading an image or calling the provider, then uses
+that user's JWT for RLS-protected generation/trace writes. It accepts no supplied
+image URL, prompt, provider key, or role. Anonymous and member calls are denied.
 
 Vercel deployment protection is off for assignment review. Application login
 and admin authorization remain required. Apply migration 0010 before deploying

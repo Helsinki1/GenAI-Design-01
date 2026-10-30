@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { startFixture, adminId, memberId, imageId } from "./admin-fixture.mjs";
 import { getResource, validateResource } from "../lib/admin-resources.js";
 import { generateForImage } from "../lib/generation.js";
+import { handleAdminGeneration } from "../lib/admin-generation.js";
 
 test("resource validation rejects forged fields and invalid values", () => {
   assert.equal(getResource("__proto__"), null);
@@ -12,6 +13,42 @@ test("resource validation rejects forged fields and invalid values", () => {
   assert.throws(() => validateResource(getResource("images"), { url: "javascript:alert(1)" }));
   assert.throws(() => validateResource(getResource("signup-domains"), { domain: "https://example.com" }));
   assert.deepEqual(validateResource(getResource("whitelisted-emails"), { email: " A@Example.COM " }), { email: "a@example.com" });
+});
+
+test("shared generation endpoint rejects anonymous/member callers and uses the admin JWT", async (t) => {
+  const fixture = await startFixture();
+  t.after(() => fixture.close());
+  const values = { NEXT_PUBLIC_SUPABASE_URL: fixture.url, NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture.key, OPENAI_API_KEY: "test-only" };
+  for (const [key, value] of Object.entries(values)) {
+    const previous = process.env[key];
+    process.env[key] = value;
+    t.after(() => { if (previous === undefined) delete process.env[key]; else process.env[key] = previous; });
+  }
+  const request = (token, body = { imageId }) => new Request("http://localhost/api/admin/generate", {
+    method: "POST", headers: token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : {}, body: JSON.stringify(body),
+  });
+  const neverGenerate = () => { throw new Error("Unauthorized provider call"); };
+  assert.equal((await handleAdminGeneration(request(), neverGenerate)).status, 401);
+  assert.equal((await handleAdminGeneration(request("invalid"), neverGenerate)).status, 401);
+  assert.equal((await handleAdminGeneration(request(fixture.memberToken), neverGenerate)).status, 403);
+  assert.equal((await handleAdminGeneration(request(fixture.adminToken, { imageId: "invalid" }), neverGenerate)).status, 400);
+  const response = await handleAdminGeneration(request(fixture.adminToken), (supabase, user, image, single) => {
+    assert.equal(user.id, adminId);
+    assert.equal(single, true);
+    return generateForImage(supabase, user, image, single, {
+      toDataUrl: async () => "data:image/png;base64,fixture",
+      requestCaptions: async () => ({ raw: '{"captions":["Shared admin generation"]}', captions: ["Shared admin generation"] }),
+    });
+  });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.error, null);
+  assert.equal(result.captionCount, 1);
+  const admin = createClient(fixture.url, fixture.key, { global: { headers: { Authorization: `Bearer ${fixture.adminToken}` } }, auth: { persistSession: false } });
+  const saved = await admin.from("captions").select("created_by,content").eq("generation_request_id", result.requestId).single();
+  assert.equal(saved.error, null);
+  assert.equal(saved.data.created_by, adminId);
+  assert.equal(saved.data.content, "Shared admin generation");
 });
 
 test("Week 7 database CRUD, isolation, and actual generation telemetry", async (t) => {
