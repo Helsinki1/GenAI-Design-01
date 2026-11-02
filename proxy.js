@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function proxy(request) {
   // This endpoint validates its bearer JWT and admin role in the handler.
-  if (request.nextUrl.pathname === "/api/admin/generate") return NextResponse.next();
+  if (["/api/admin/generate", "/api/admin/prompt-step"].includes(request.nextUrl.pathname)) return NextResponse.next();
   return updateSession(request);
 }
 

@@ -11,7 +11,8 @@
     "start": "next start",
     "test:votes": "node --test tests/caption-votes.test.mjs",
     "test:admin": "node --test tests/admin.test.mjs",
-    "preview:admin": "node tests/admin-fixture.mjs"
+    "preview:admin": "node tests/admin-fixture.mjs",
+    "test:prompt-studio": "node --test tests/prompt-studio.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

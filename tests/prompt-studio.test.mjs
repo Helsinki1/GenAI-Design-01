@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {randomUUID} from 'node:crypto';
+import {createClient} from '@supabase/supabase-js';
+import {buildStepInput,requestPromptStep,handlePromptStudioGeneration} from '../lib/prompt-studio-generation.js';
+import {startFixture,imageId} from './admin-fixture.mjs';
+const provider='70000000-0000-4000-8000-000000000001';
+const step={model:'gpt-4.1-mini',provider_id:provider,system_prompt:'Describe the image.',user_prompt:'What is here?',include_image:true,output_kind:'text'};
+test('text steps and final captions use real ordered prompts and the selected model',async()=>{
+  const run={steps_snapshot:[step,{...step,include_image:false,user_prompt:'Make this funny: {{previous}}',system_prompt:'Write {{count}} captions.',output_kind:'captions'}],step_outputs:[],source_image_url:'https://example.com/source.png',requested_count:5};
+  let sent;
+  const fetcher=async(url,options)=>{assert.equal(url,'https://api.openai.com/v1/chat/completions');sent=JSON.parse(options.body);return Response.json({choices:[{message:{content:run.step_outputs.length?JSON.stringify({captions:['A kite with a corner office.']}):'A kite over a field.'},finish_reason:'stop'}]});};
+  const first=await requestPromptStep(run,fetcher);assert.equal(first.raw,'A kite over a field.');assert.equal(sent.response_format,undefined);assert.equal(sent.messages[1].content[1].type,'image_url');
+  run.step_outputs.push({output:first.raw});
+  const second=await requestPromptStep(run,fetcher);assert.equal(sent.messages[1].content[0].text,'Make this funny: A kite over a field.');assert.equal(sent.messages[1].content.length,1);assert.equal(sent.model,step.model);assert.deepEqual(sent.response_format,{type:'json_object'});assert.deepEqual(second.captions,['A kite with a corner office.']);
+  run.steps_snapshot[1].user_prompt='Find a joke';assert.match(buildStepInput(run).user,/Previous step output:\nA kite/);
+  await assert.rejects(()=>requestPromptStep(run,async()=>Response.json({choices:[{message:{content:'not json'},finish_reason:'stop'}]})),/valid caption JSON/);
+  await assert.rejects(()=>requestPromptStep(run,async()=>Response.json({choices:[{message:{content:JSON.stringify({captions:[null]})},finish_reason:'stop'}]})),/invalid captions/);
+  await assert.rejects(()=>requestPromptStep(run,async()=>Response.json({error:{message:'Rate limited'}},{status:429})),/Rate limited/);
+});
+test('gateway rejects anonymous, ordinary members and unclaimed runs before provider calls',{timeout:90000},async t=>{
+  const f=await startFixture();t.after(()=>f.close());
+  const old={url:process.env.NEXT_PUBLIC_SUPABASE_URL,key:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,ai:process.env.OPENAI_API_KEY};
+  process.env.NEXT_PUBLIC_SUPABASE_URL=f.url;process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY=f.key;process.env.OPENAI_API_KEY='fixture-only';
+  t.after(()=>{for(const[k,v]of Object.entries({NEXT_PUBLIC_SUPABASE_URL:old.url,NEXT_PUBLIC_SUPABASE_ANON_KEY:old.key,OPENAI_API_KEY:old.ai})){if(v===undefined)delete process.env[k];else process.env[k]=v;}});
+  let calls=0;const generate=async()=>{calls++;return {raw:'checked'};};
+  const req=(token,body={})=>new Request('http://localhost/api/admin/prompt-step',{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});
+  assert.equal((await handlePromptStudioGeneration(req(),generate)).status,401);
+  assert.equal((await handlePromptStudioGeneration(req(f.memberToken),generate)).status,403);
+  const client=createClient(f.url,f.key,{global:{headers:{Authorization:`Bearer ${f.adminToken}`}},auth:{persistSession:false}});
+  const id=randomUUID();let r=await client.rpc('start_prompt_chain_run',{p_id:id,p_chain_id:'70000000-0000-4000-8000-000000000003',p_image_id:imageId,p_count:1});assert.equal(r.error,null,r.error?.message);
+  assert.equal((await handlePromptStudioGeneration(req(f.adminToken,{requestId:id,executionToken:randomUUID()}),generate)).status,409);assert.equal(calls,0);
+  r=await client.rpc('claim_prompt_chain_step',{p_id:id});assert.equal(r.error,null,r.error?.message);
+  const response=await handlePromptStudioGeneration(req(f.adminToken,{requestId:id,executionToken:r.data.run.execution_token,prompt:'ignored',imageUrl:'http://localhost/private'}),generate);
+  assert.equal(response.status,200);assert.equal(calls,1);
+});

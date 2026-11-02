@@ -131,3 +131,9 @@ image URL, prompt, provider key, or role. Anonymous and member calls are denied.
 Vercel deployment protection is off for assignment review. Application login
 and admin authorization remain required. Apply migration 0010 before deploying
 this release to a new database.
+
+## Week 8 Prompt Studio service
+
+The third app lives in the separate `Helsinki1/GenAI-Prompt-Chain` repository. It shares this Supabase project and calls `POST /api/admin/prompt-step` to reuse the existing OpenAI key. The handler validates the caller's Google session, `profiles.is_superadmin`, run ownership, and an active execution lease, then reads the snapshotted prompts/model/image from the database. It accepts no prompt or image override from the request body.
+
+Apply `0011_prompt_studio.sql` once to the shared database; it is mirrored in the Prompt Studio repository. Its invoker RPCs provide atomic chain CRUD/reordering, stable run snapshots, execution claims, and atomic trace/media completion. Only the existing Auth owner becomes a superadmin, and application users cannot update role columns. Run `npm run test:prompt-studio` for gateway authorization and multi-step provider regressions.

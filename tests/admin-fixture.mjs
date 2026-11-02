@@ -63,7 +63,7 @@ export async function startFixture({ appDirectory = root, cookieName = "sb-local
       grant select,insert,update,delete on storage.objects to authenticated;
       create function storage.foldername(text) returns text[] language sql as $$ select string_to_array($1,'/') $$;
       insert into auth.users values ('${adminId}','davidxionghl@gmail.com'),('${memberId}','member@example.test');`);
-    for (const file of ["0001_captions_schema_and_seed.sql", "0002_profiles_and_auth_trigger.sql", "0003_profiles_bio.sql", "0004_caption_rating.sql", "0006_uploads_and_image_of_the_day.sql", "0008_caption_votes_policies.sql", "0009_admin_panel.sql", "0010_admin_observability.sql"]) {
+    for (const file of ["0001_captions_schema_and_seed.sql", "0002_profiles_and_auth_trigger.sql", "0003_profiles_bio.sql", "0004_caption_rating.sql", "0006_uploads_and_image_of_the_day.sql", "0008_caption_votes_policies.sql", "0009_admin_panel.sql", "0010_admin_observability.sql", "0011_prompt_studio.sql"]) {
       sql(readFileSync(join(root, "supabase/migrations", file), "utf8"));
     }
     execFileSync("docker", ["run", "--rm", "-d", "--name", container, "--network", "host",
