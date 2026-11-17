@@ -10,6 +10,7 @@ function isPublicPath(pathname) {
 }
 
 export async function updateSession(request) {
+  if (request.nextUrl.pathname === "/api/auth/health") return NextResponse.next({ request });
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

@@ -11,14 +11,16 @@ export default function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-
-    if (signInError) {
-      setError(signInError.message || "Google sign-in could not be started.");
+    try {
+      const health = await fetch("/api/auth/health", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+      if (!health.ok) throw new Error("Sign-in is temporarily unavailable. Please retry shortly or let the project owner know.");
+      const { error: signInError } = await createClient().auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (signInError) throw signInError;
+    } catch (cause) {
+      setError(cause.message || "Google sign-in could not be started. Please retry.");
       setLoading(false);
     }
   }
@@ -33,7 +35,7 @@ export default function LoginForm() {
       >
         {loading ? "Redirecting…" : "Continue with Google"}
       </button>
-      {error ? <p className="notice auth-error">{error}</p> : null}
+      {error ? <p role="alert" className="notice auth-error">{error}</p> : null}
     </>
   );
 }

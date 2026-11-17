@@ -137,3 +137,15 @@ this release to a new database.
 The third app lives in the separate `Helsinki1/GenAI-Prompt-Chain` repository. It shares this Supabase project and calls `POST /api/admin/prompt-step` to reuse the existing OpenAI key. The handler validates the caller's Google session, `profiles.is_superadmin`, run ownership, and an active execution lease, then reads the snapshotted prompts/model/image from the database. It accepts no prompt or image override from the request body.
 
 Apply `0011_prompt_studio.sql` once to the shared database; it is mirrored in the Prompt Studio repository. Its invoker RPCs provide atomic chain CRUD/reordering, stable run snapshots, execution claims, and atomic trace/media completion. Only the existing Auth owner becomes a superadmin, and application users cannot update role columns. Run `npm run test:prompt-studio` for gateway authorization and multi-step provider regressions.
+
+## Review access recovery — November 17, 2026
+
+The mentor's login screenshot pointed to a paused shared Supabase project. That project has been restored; the existing verified reviewer account now has both `is_admin` and `is_superadmin`. Application and database authorization remain enforced. Google callbacks include the canonical caption, admin, and Prompt Studio production URLs.
+
+Use stable review URLs: [Caption Lab](https://gen-ai-design-01.vercel.app), [Admin](https://gen-ai-design-01-admin.vercel.app), and [Prompt Studio](https://gen-ai-prompt-chain.vercel.app). Avoid old immutable deployment links in submissions.
+
+The login forms now call `/api/auth/health` before redirecting. This bounded public endpoint checks Auth/Google availability without exposing credentials or account information. A paused/unreachable provider yields a retryable message inside the app. Use Node 24; Next.js is patched to 16.4.5.
+
+Verification commands: `npm run test:admin`, `npm run test:prompt-studio`, `npm run test:votes`, `npm run test:auth`, and builds in both the repository root and `admin-app`. These cover profiles/media CRUD, ratings, permission isolation, generation gateway authorization, and failed authentication-health responses. Destructive tests use disposable local databases.
+
+The admin app still requires `profiles.is_admin === true`; Prompt Studio requires a verified Google session and `profiles.is_superadmin === true`. Before each feedback session, test the canonical login pages and health endpoints without an existing application session. Free Supabase projects may pause after inactivity; this repair does not change the billing plan. A human PM review must still be scheduled and recorded.

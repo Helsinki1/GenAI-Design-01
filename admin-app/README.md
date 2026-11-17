@@ -41,3 +41,7 @@ the same fixture for browser CRUD/upload checks at localhost:3010. Fixtures neve
 read production credentials. The repository's `npm run test:admin` additionally
 verifies database CRUD, RLS and generation tracing; `npm run test:votes` covers
 the voting regression. Stop the preview with Ctrl+C to remove the database.
+
+## Review access and runtime
+
+See the root README recovery record. The stable URL is https://gen-ai-design-01-admin.vercel.app. Google sign-in preflights `/api/auth/health`; a paused backend produces a retryable error. Use Node 24 and Next.js 16.4.5. Role checks are unchanged.

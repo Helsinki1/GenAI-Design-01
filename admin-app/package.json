@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24 <25"
   },
   "scripts": {
     "dev": "next dev",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
-    "next": "^16.4.3",
+    "next": "16.4.5",
     "react": "latest",
     "react-dom": "latest"
   }

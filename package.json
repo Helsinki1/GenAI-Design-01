@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24 <25"
   },
   "scripts": {
     "dev": "next dev",
@@ -12,12 +12,13 @@
     "test:votes": "node --test tests/caption-votes.test.mjs",
     "test:admin": "node --test tests/admin.test.mjs",
     "preview:admin": "node tests/admin-fixture.mjs",
-    "test:prompt-studio": "node --test tests/prompt-studio.test.mjs"
+    "test:prompt-studio": "node --test tests/prompt-studio.test.mjs",
+    "test:auth": "node --test tests/auth-health.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
-    "next": "^16.4.3",
+    "next": "16.4.5",
     "react": "latest",
     "react-dom": "latest"
   }
