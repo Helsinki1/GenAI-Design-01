@@ -19,7 +19,7 @@ export async function saveResource(slug, id, input) {
   const { data, error: writeError } = await query.select("id").single();
   if (writeError || !data) return { error: writeError?.message || "Record was not saved. Refresh and try again." };
   revalidatePath("/admin", "layout");
-  if (slug === "images") revalidatePath("/");
+  if (slug === "images" || slug === "media") revalidatePath("/");
   return { error: null, id: data.id };
 }
 
@@ -31,6 +31,6 @@ export async function deleteResource(slug, id) {
   const { data, error: deleteError } = await supabase.from(config.table).delete().eq("id", id).select("id").single();
   if (deleteError || !data) return { error: deleteError?.message || "Record was not deleted. Refresh and try again." };
   revalidatePath("/admin", "layout");
-  if (slug === "images") revalidatePath("/");
+  if (slug === "images" || slug === "media") revalidatePath("/");
   return { error: null };
 }

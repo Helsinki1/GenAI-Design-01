@@ -101,6 +101,18 @@ test("Week 7 database CRUD, isolation, and actual generation telemetry", async (
   assert.ok(trace.response.includes("Test generated caption")); assert.ok(trace.duration_ms >= 0); assert.match(trace.user_prompt, /2 different/);
   const media = ok(await admin.from("captions").select("*,images(url)").eq("generation_request_id", result.requestId));
   assert.equal(media.length, 2); assert.ok(media[0].images.url);
+  const mediaPayload = validateResource(getResource("media"), {content:"Edited AI caption", model:"forged-model"});
+  assert.deepEqual(mediaPayload,{content:"Edited AI caption"});
+  assert.equal(getResource("media").update,true); assert.equal(getResource("media").delete,true);
+  assert.throws(()=>validateResource(getResource("media"),{content:"x".repeat(301)}));
+  const editedMedia=ok(await admin.from("captions").update(mediaPayload).eq("id",media[0].id).select().single());
+  assert.equal(editedMedia.content,"Edited AI caption");assert.equal(editedMedia.model,media[0].model);
+  const deniedDelete=await anon.from("captions").delete().eq("id",media[0].id);
+  assert.ok(deniedDelete.error);
+  ok(await admin.from("captions").delete().eq("id",media[0].id).select().single());
+  assert.equal(ok(await admin.from("captions").select("id").eq("id",media[0].id)).length,0);
+  assert.ok(ok(await admin.from("images").select("id").eq("id",imageId)).length);
+
   const failed = await generateForImage(member, { id: memberId }, { id: imageId, url: "unused" }, true, { ...dependencies, requestCaptions: async () => { throw new Error("Provider unavailable"); } });
   assert.match(failed.error, /Provider unavailable/);
   assert.equal(ok(await admin.from("generation_requests").select().eq("status", "failed")).length, 1);

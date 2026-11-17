@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin, fetchAll } from "../../../lib/admin";
 import { getResource } from "../../../lib/admin-resources";
 import ResourceManager from "./resource-manager";
+import CreateCaption from "../captions/create-caption";
 
 const PAGE_SIZE = 25;
 
@@ -21,6 +22,7 @@ export default async function ResourcePage({ params, searchParams }) {
   if (config.order) query = query.order(config.order, { ascending: false });
   query = query.order("id").range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   const { data, count, error } = await query;
+  const images = slug === "media" ? await fetchAll(() => supabase.from("images").select("id,url").order("id")) : null;
   const options = {};
   for (const field of config.fields.filter((field) => field.type === "reference")) {
     const result = await fetchAll(() => supabase.from(field.table).select(`id,${field.labelKey}`).order("id"));
@@ -32,6 +34,7 @@ export default async function ResourcePage({ params, searchParams }) {
   return <div className="admin-body">
     <h1>{config.title}</h1>
     {config.description && <p className="copy">{config.description}</p>}
+    {images?.error ? <p role="alert">Could not load generation images. Please refresh.</p> : images ? <CreateCaption images={images.data} generationOnly /> : null}
     {config.search && <form className="resource-search" role="search">
       <label>Search {config.title.toLowerCase()}<input name="q" defaultValue={q} maxLength={200} /></label>
       <button className="auth-button">Search</button>

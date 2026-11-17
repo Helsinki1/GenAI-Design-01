@@ -89,7 +89,7 @@ export default function ResourceManager({ slug, config, rows, options, userId })
         <button className="auth-button" onClick={() => dialog.current.close()}>Close</button>
       </> : <form onSubmit={submit}>
         <fieldset disabled={pending}>
-          {mode === "delete" ? <p>This removes record <code>{selected?.id}</code>. Related records may prevent deletion.</p> : <>
+          {mode === "delete" ? <p>{slug === "media" ? "This deletes the generated caption and its votes. The original image is kept." : <>This removes record <code>{selected?.id}</code>. Related records may prevent deletion.</>}</p> : <>
             {slug === "images" && mode === "create" && <label>Upload image
               <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setFile(event.target.files?.[0] || null)} />
               <small>Or enter a hosted image URL below. Maximum upload size: 10 MB.</small>
@@ -98,7 +98,7 @@ export default function ResourceManager({ slug, config, rows, options, userId })
               {field.label}
               {field.type === "checkbox" ? <input type="checkbox" checked={form[field.key] === true} onChange={(event) => setForm({ ...form, [field.key]: event.target.checked })} />
                 : field.type === "reference" ? <select required value={form[field.key] ?? ""} onChange={(event) => setForm({ ...form, [field.key]: event.target.value })}><option value="">Choose…</option>{options[field.key]?.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select>
-                : field.type === "textarea" ? <textarea rows={4} required={field.required} value={form[field.key] ?? ""} onChange={(event) => setForm({ ...form, [field.key]: event.target.value })} />
+                : field.type === "textarea" ? <textarea rows={4} maxLength={field.maxLength ?? 10000} required={field.required} value={form[field.key] ?? ""} onChange={(event) => setForm({ ...form, [field.key]: event.target.value })} />
                 : <input type={field.type === "domain" ? "text" : field.type} required={field.required && !(field.key === "url" && file)} disabled={field.key === "url" && !!file} min={field.min} max={field.max} step={field.type === "number" ? 1 : undefined} placeholder={field.placeholder} value={form[field.key] ?? ""} onChange={(event) => setForm({ ...form, [field.key]: event.target.value })} />}
             </label>)}
           </>}

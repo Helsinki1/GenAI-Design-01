@@ -26,7 +26,7 @@ export const resources = {
   images: { title: "Images", table: "images", search: "url", columns: ["url", "created_by", "created_datetime_utc"], ...crud,
     description: "Upload a new image or register a hosted image URL. Deleting a record unlinks captions; it does not delete a shared storage file.",
     fields: [text("url", "Image URL", { type: "url" })] },
-  media: { title: "AI generated media", table: "captions", search: "content", columns: ["content", "model", "generation_request_id", "created_datetime_utc"], fields: [], order: "created_datetime_utc" },
+  media: { title: "AI generated media", table: "captions", search: "content", columns: ["content", "model", "generation_request_id", "created_datetime_utc"], update: true, delete: true, fields: [paragraph("content", "Caption", { maxLength: 300 })], order: "created_datetime_utc", description: "Generate captions for an image, inspect their model and source, and edit or delete them here. The original image is kept when a caption is deleted." },
 };
 
 export function getResource(slug) {
@@ -49,7 +49,7 @@ export function validateResource(config, input) {
       if (typeof value !== "string") value = "";
       value = value.trim();
       if (field.required && !value) throw new Error(`${field.label} is required.`);
-      if (value.length > 10000) throw new Error(`${field.label} is too long.`);
+      if (value.length > (field.maxLength ?? 10000)) throw new Error(`${field.label} is too long.`);
       if (field.type === "reference" && !uuidPattern.test(value)) throw new Error(`Choose a valid ${field.label.toLowerCase()}.`);
       if (field.type === "email" || field.type === "domain") value = value.toLowerCase();
       if (field.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) throw new Error("Enter a valid e-mail address.");
